@@ -14,11 +14,11 @@ let NumRows = 9
 class Level {
     let cookies = Array2D<Cookie>(columns: NumColumns, rows: NumRows) // private
     let tiles = Array2D<Tile>(columns: NumColumns, rows: NumRows) // private
-    var possibleSwaps = Set<Swap>()
+    var possibleSwaps = XJSet<Swap>()
     var comboMultiplier: Int = 0 // private
     
-    let targetScore: Int!
-    let maximumMoves: Int!
+    var targetScore: Int! = 0
+    var maximumMoves: Int! = 0
     
     init(filename: String) {
         // 1
@@ -26,19 +26,19 @@ class Level {
             // 2
             if let tilesArray: AnyObject = dictionary["tiles"] {
                 // 3
-                for (row, rowArray) in enumerate(tilesArray as Int[][]) {
+                for (row, rowArray) in (tilesArray as! [[Int]]).enumerate() {
                     // 4
                     let tileRow = NumRows - row - 1
                     // 5
-                    for (column, value) in enumerate(rowArray) {
+                    for (column, value) in rowArray.enumerate() {
                         if value == 1 {
                             tiles[column, tileRow] = Tile()
                         }
                     }
                 }
                 //
-                targetScore = (dictionary["targetScore"] as NSNumber).integerValue
-                maximumMoves = (dictionary["moves"] as NSNumber).integerValue
+                targetScore = (dictionary["targetScore"] as! NSNumber).integerValue
+                maximumMoves = (dictionary["moves"] as! NSNumber).integerValue
             }
         }
     }
@@ -55,9 +55,9 @@ class Level {
         return tiles[column, row]
     }
     
-    func shuffle() -> Set<Cookie> {
-        var ret: Set<Cookie>
-        do {
+    func shuffle() -> XJSet<Cookie> {
+        var ret: XJSet<Cookie>
+        repeat {
         ret = createInitialCookies()
         detectPossibleSwaps()
         } while possibleSwaps.count == 0
@@ -65,17 +65,17 @@ class Level {
         return ret
     }
     
-    func createInitialCookies() -> Set<Cookie> {
-        var ret = Set<Cookie>()
+    func createInitialCookies() -> XJSet<Cookie> {
+        let ret = XJSet<Cookie>()
         // 1
-        for row in 0..NumRows {
-            for column in 0..NumColumns {
+        for row in 0..<NumRows {
+            for column in 0..<NumColumns {
                 
                 if tiles[column, row] != nil {
                     
                     // 2
                     var cookieType: CookieType // = CookieType.random()
-                    do {
+                    repeat {
                         cookieType = CookieType.random()
                     } while ( (column >= 2 && cookies[column - 1, row]?.cookieType == cookieType && cookies[column - 2, row]?.cookieType == cookieType) || (row >= 2 && cookies[column, row - 1]?.cookieType == cookieType && cookies[column, row - 2]?.cookieType == cookieType) )
                     
@@ -93,10 +93,10 @@ class Level {
     }
     
     func detectPossibleSwaps() {
-        var ret = Set<Swap>()
+        let ret = XJSet<Swap>()
         
-        for row in 0..NumRows {
-            for column in 0..NumColumns {
+        for row in 0..<NumRows {
+            for column in 0..<NumColumns {
                 if let cookie = cookies[column, row] {
                     // TODO: detection logic 
                     // Is it possible to swap this cookie with the one on the right?
@@ -173,7 +173,7 @@ class Level {
         return possibleSwaps.containsElement(swap)
     }
     
-    func removeMatches() -> Set<Chain> {
+    func removeMatches() -> XJSet<Chain> {
         let horizontalChains = detectHorizontalMatches()
         let verticalChains = detectVerticalMatches()
         
@@ -185,11 +185,11 @@ class Level {
         
         return horizontalChains.unionSet(verticalChains)
     }
-    func detectHorizontalMatches() -> Set<Chain> {
+    func detectHorizontalMatches() -> XJSet<Chain> {
         // 1
-        let ret = Set<Chain>()
+        let ret = XJSet<Chain>()
         // 2
-        for row in 0..NumRows {
+        for row in 0..<NumRows {
             for var column = 0; column < NumColumns - 2; {
                 // 3
                 if let cookie = cookies[column, row] {
@@ -198,7 +198,7 @@ class Level {
                     if cookies[column + 1, row]?.cookieType == matchType && cookies[column + 2, row]?.cookieType == matchType {
                         // 5
                         let chain = Chain(chainType: .Horizontal)
-                        do {
+                        repeat {
                             chain.addCookie(cookies[column, row]!)
                             ++column
                         } while column < NumColumns && cookies[column, row]?.cookieType == matchType
@@ -214,10 +214,10 @@ class Level {
         
         return ret
     }
-    func detectVerticalMatches() -> Set<Chain> {
-        let ret = Set<Chain>()
+    func detectVerticalMatches() -> XJSet<Chain> {
+        let ret = XJSet<Chain>()
         
-        for column in 0..NumColumns {
+        for column in 0..<NumColumns {
             for var row = 0; row < NumRows - 2; {
                 if let cookie = cookies[column, row] {
                     let matchType = cookie.cookieType
@@ -226,7 +226,7 @@ class Level {
                         cookies[column, row + 2]?.cookieType == matchType {
                             
                         let chain = Chain(chainType: .Vertical)
-                        do {
+                        repeat {
                             chain.addCookie(cookies[column, row]!)
                             ++row
                         }
@@ -242,7 +242,7 @@ class Level {
         return ret
     }
     
-    func removeCookies(chains: Set<Chain>) {
+    func removeCookies(chains: XJSet<Chain>) {
         for chain in chains {
             for cookie in chain.cookies {
                 cookies[cookie.column, cookie.row] = nil
@@ -253,13 +253,13 @@ class Level {
     func fillHoles() -> Array<Array<Cookie>> {
         var columns = Array<Array<Cookie>>()
         // 1
-        for column in 0..NumColumns {
+        for column in 0..<NumColumns {
             var array = Array<Cookie>()
-            for row in 0..NumRows {
+            for row in 0..<NumRows {
                 // 2
                 if tiles[column, row] != nil && cookies[column, row] == nil {
                     // 3
-                    for lookup in (row + 1)..NumRows {
+                    for lookup in (row + 1)..<NumRows {
                         if let cookie = cookies[column, lookup] {
                             // 4
                             cookies[column, lookup] = nil
@@ -282,18 +282,18 @@ class Level {
     }
     
     func topUpCookies() -> Array<Array<Cookie>> {
-        var columns = Cookie[][]()
+        var columns = [[Cookie]]()
         var cookieType: CookieType = .Unknown
         
-        for column in 0..NumColumns {
-            var array = Cookie[]()
+        for column in 0..<NumColumns {
+            var array = [Cookie]()
             // 1
             for var row = NumRows - 1; row >= 0 && cookies[column, row] == nil; --row {
                 // 2
                 if tiles[column, row] != nil {
                     // 3
                     var newCookietype: CookieType
-                    do {
+                    repeat {
                     newCookietype = CookieType.random()
                     } while newCookietype == cookieType
                     cookieType = newCookietype
@@ -311,7 +311,7 @@ class Level {
         return columns
     }
     
-    func calculateScores(chains: Set<Chain>) {
+    func calculateScores(chains: XJSet<Chain>) {
         // 3-chains is 60 pts, 4-chains is 120, 5-chains is 180, and so on
         for chain in chains {
             chain.score = 60 * (chain.length - 2) * comboMultiplier

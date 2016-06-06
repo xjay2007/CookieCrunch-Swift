@@ -9,7 +9,7 @@
 class Array2D<T> {
     let columns: Int
     let rows: Int
-    let array: Array<T?> // private
+    var array: Array<T?> // private
     
     init(columns: Int, rows: Int) {
         self.columns = columns

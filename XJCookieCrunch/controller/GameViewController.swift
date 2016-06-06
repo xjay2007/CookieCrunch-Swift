@@ -13,13 +13,13 @@ import AVFoundation
 extension SKNode {
     class func unarchiveFromFile(file : NSString) -> SKNode? {
         
-        let path = NSBundle.mainBundle().pathForResource(file, ofType: "sks")
+        let path = NSBundle.mainBundle().pathForResource(file as String, ofType: "sks")
         
-        var sceneData = NSData.dataWithContentsOfFile(path, options: .DataReadingMappedIfSafe, error: nil)
-        var archiver = NSKeyedUnarchiver(forReadingWithData: sceneData)
+        let sceneData = try! NSData(contentsOfFile: path!, options: .DataReadingMappedIfSafe)
+        let archiver = NSKeyedUnarchiver(forReadingWithData: sceneData)
         
         archiver.setClass(self.classForKeyedUnarchiver(), forClassName: "SKScene")
-        let scene = archiver.decodeObjectForKey(NSKeyedArchiveRootObjectKey) as GameScene
+        let scene = archiver.decodeObjectForKey(NSKeyedArchiveRootObjectKey) as! GameScene
         archiver.finishDecoding()
         return scene
     }
@@ -35,11 +35,11 @@ class GameViewController: UIViewController {
     
     var backgroundMusic: AVAudioPlayer!
     
-    @IBOutlet var targetLabel: UILabel
-    @IBOutlet var movesLabel: UILabel
-    @IBOutlet var scoreLabel: UILabel
-    @IBOutlet var gameOverPanel: UIImageView
-    @IBOutlet var shuffleButton: UIButton
+    @IBOutlet var targetLabel: UILabel!
+    @IBOutlet var movesLabel: UILabel!
+    @IBOutlet var scoreLabel: UILabel!
+    @IBOutlet var gameOverPanel: UIImageView!
+    @IBOutlet var shuffleButton: UIButton!
     @IBAction func shuffleButtonPressed(sender: UIButton) {
         shuffle()
         decreaseMoves()
@@ -47,11 +47,15 @@ class GameViewController: UIViewController {
 
     var tapGestureRecognizer: UITapGestureRecognizer!
     
+    required init?(coder aDecoder: NSCoder) {
+        super.init(coder: aDecoder)
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
         // Configure the view.
-        let skView = self.view as SKView
+        let skView = self.view as! SKView
         skView.multipleTouchEnabled = false
         skView.showsFPS = true
         skView.showsNodeCount = true
@@ -73,7 +77,7 @@ class GameViewController: UIViewController {
         
         // bgm
         let url = NSBundle.mainBundle().URLForResource("Mining by Moonlight", withExtension: "mp3")
-        backgroundMusic = AVAudioPlayer(contentsOfURL: url, error: nil)
+        backgroundMusic = try? AVAudioPlayer(contentsOfURL: url!)
         backgroundMusic.numberOfLoops = -1
         backgroundMusic.play()
         
@@ -84,8 +88,8 @@ class GameViewController: UIViewController {
         return true
     }
 
-    override func supportedInterfaceOrientations() -> Int {
-        return Int(UIInterfaceOrientationMask.AllButUpsideDown.toRaw())
+    override func supportedInterfaceOrientations() -> UIInterfaceOrientationMask {
+        return UIInterfaceOrientationMask.AllButUpsideDown
     }
 
     override func didReceiveMemoryWarning() {
@@ -116,7 +120,7 @@ class GameViewController: UIViewController {
         shuffleButton.hidden = true
         
         scene.animateGameOver(){
-            self.tapGestureRecognizer = UITapGestureRecognizer(target: self, action: "hideGameOver")
+            self.tapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(GameViewController.hideGameOver))
             self.view.addGestureRecognizer(self.tapGestureRecognizer)
             }
     }
@@ -178,9 +182,9 @@ class GameViewController: UIViewController {
     }
     
     func updateLabel() {
-        targetLabel.text = NSString(format: "%ld", level.targetScore)
-        movesLabel.text = NSString(format: "%ld", movesLeft)
-        scoreLabel.text = NSString(format: "%ld", score)
+        targetLabel.text = NSString(format: "%ld", level.targetScore) as String
+        movesLabel.text = NSString(format: "%ld", movesLeft) as String
+        scoreLabel.text = NSString(format: "%ld", score) as String
     }
     
     func decreaseMoves() {

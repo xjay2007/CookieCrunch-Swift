@@ -12,31 +12,31 @@ enum CookieType: Int {
     case Unknown = 0, Croissant, Cupcake, Danish, Donut, Macaroom, SugarCookie
     
     var spriteName: String {
-    let spriteNames = [
-        "Croissant",
-        "Cupcake",
-        "Danish",
-        "Donut",
-        "Macaroon",
-        "SugarCookie"]
+        let spriteNames = [
+            "Croissant",
+            "Cupcake",
+            "Danish",
+            "Donut",
+            "Macaroon",
+            "SugarCookie"]
         
-        return spriteNames[toRaw()-1]
+        return spriteNames[rawValue-1]
     }
     
     var highlightedSpriteName: String {
-    let highlightedSpriteNames = [
-        "Croissant-Highlighted",
-        "Cupcake-Highlighted",
-        "Danish-Highlighted",
-        "Donut-Highlighted",
-        "Macaroon-Highlighted",
-        "SugarCookie-Highlighted"]
+        let highlightedSpriteNames = [
+            "Croissant-Highlighted",
+            "Cupcake-Highlighted",
+            "Danish-Highlighted",
+            "Donut-Highlighted",
+            "Macaroon-Highlighted",
+            "SugarCookie-Highlighted"]
         
-        return highlightedSpriteNames[toRaw() - 1]
+        return highlightedSpriteNames[rawValue-1]
     }
     
     static func random() -> CookieType {
-        return CookieType.fromRaw(Int(arc4random_uniform(6))+1)!
+        return CookieType(rawValue: Int(arc4random_uniform(6))+1)!
     }
 }
 
@@ -54,12 +54,12 @@ class Cookie {
     }
 }
 
-extension CookieType: Printable {
+extension CookieType: CustomStringConvertible {
     var description: String {
     return spriteName
     }
 }
-extension Cookie: Printable {
+extension Cookie: CustomStringConvertible {
     var description: String {
     return "Type:\(self.cookieType) square:{\(self.column), \(self.row)}"
     }

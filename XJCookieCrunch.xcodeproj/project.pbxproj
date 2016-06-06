@@ -10,7 +10,7 @@
 		5F3541A61962993D00F56DA4 /* Grid.atlas in Resources */ = {isa = PBXBuildFile; fileRef = 5F3541A51962993D00F56DA4 /* Grid.atlas */; };
 		5F3541AB1962A23200F56DA4 /* Array2D.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F3541A81962A23200F56DA4 /* Array2D.swift */; };
 		5F3541AC1962A23200F56DA4 /* Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F3541A91962A23200F56DA4 /* Extension.swift */; };
-		5F3541AD1962A23200F56DA4 /* Set.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F3541AA1962A23200F56DA4 /* Set.swift */; };
+		5F3541AD1962A23200F56DA4 /* XJSet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F3541AA1962A23200F56DA4 /* XJSet.swift */; };
 		5F53BF221962585900CAAC8A /* Chomp.wav in Resources */ = {isa = PBXBuildFile; fileRef = 5F53BF1C1962585900CAAC8A /* Chomp.wav */; };
 		5F53BF231962585900CAAC8A /* Drip.wav in Resources */ = {isa = PBXBuildFile; fileRef = 5F53BF1D1962585900CAAC8A /* Drip.wav */; };
 		5F53BF241962585900CAAC8A /* Error.wav in Resources */ = {isa = PBXBuildFile; fileRef = 5F53BF1E1962585900CAAC8A /* Error.wav */; };
@@ -51,7 +51,7 @@
 		5F3541A51962993D00F56DA4 /* Grid.atlas */ = {isa = PBXFileReference; lastKnownFileType = folder.skatlas; path = Grid.atlas; sourceTree = "<group>"; };
 		5F3541A81962A23200F56DA4 /* Array2D.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Array2D.swift; sourceTree = "<group>"; };
 		5F3541A91962A23200F56DA4 /* Extension.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Extension.swift; sourceTree = "<group>"; };
-		5F3541AA1962A23200F56DA4 /* Set.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Set.swift; sourceTree = "<group>"; };
+		5F3541AA1962A23200F56DA4 /* XJSet.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = XJSet.swift; sourceTree = "<group>"; };
 		5F53BF1C1962585900CAAC8A /* Chomp.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = Chomp.wav; sourceTree = "<group>"; };
 		5F53BF1D1962585900CAAC8A /* Drip.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = Drip.wav; sourceTree = "<group>"; };
 		5F53BF1E1962585900CAAC8A /* Error.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = Error.wav; sourceTree = "<group>"; };
@@ -105,7 +105,7 @@
 			children = (
 				5F3541A81962A23200F56DA4 /* Array2D.swift */,
 				5F3541A91962A23200F56DA4 /* Extension.swift */,
-				5F3541AA1962A23200F56DA4 /* Set.swift */,
+				5F3541AA1962A23200F56DA4 /* XJSet.swift */,
 			);
 			path = util;
 			sourceTree = "<group>";
@@ -278,6 +278,8 @@
 		5FB11F521961406400527C63 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
+				LastSwiftMigration = 0730;
+				LastSwiftUpdateCheck = 0730;
 				LastUpgradeCheck = 0600;
 				ORGANIZATIONNAME = xiejun;
 				TargetAttributes = {
@@ -356,7 +358,7 @@
 				5FC011861961569D00842F12 /* Tile.swift in Sources */,
 				5FC01176196150F000842F12 /* Level.swift in Sources */,
 				5FC01179196150F000842F12 /* GameScene.swift in Sources */,
-				5F3541AD1962A23200F56DA4 /* Set.swift in Sources */,
+				5F3541AD1962A23200F56DA4 /* XJSet.swift in Sources */,
 				5FB11F601961406600527C63 /* AppDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

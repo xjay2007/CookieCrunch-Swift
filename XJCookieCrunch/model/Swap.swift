@@ -16,7 +16,7 @@ class Swap {
     }
 }
 
-extension Swap: Printable {
+extension Swap: CustomStringConvertible {
     var description: String {
     return "swap \(cookieA) with \(cookieB)"
     }

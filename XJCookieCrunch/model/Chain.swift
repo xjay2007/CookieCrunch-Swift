@@ -9,7 +9,7 @@
 class Chain {
     var cookies = Array<Cookie>() // private
     
-    enum ChainType: Printable {
+    enum ChainType: CustomStringConvertible {
         case Horizontal
         case Vertical
         
@@ -43,7 +43,7 @@ class Chain {
     var score: Int = 0
 }
 
-extension Chain: Printable {
+extension Chain: CustomStringConvertible {
     var description: String {
     return "type:\(chainType) cookies:\(cookies)"
     }
@@ -56,6 +56,6 @@ func ==(lhs: Chain, rhs: Chain) -> Bool {
 extension Chain: Hashable {
     var hashValue: Int {
 //    return reduce(cookies, 0, {$0.hashValue ^ $1.hashValue})
-    return reduce(cookies, 0, {$0.hashValue ^ ($1.row * 10 + $1.column)})
+    return cookies.reduce(0, combine: {$0.hashValue ^ ($1.row * 10 + $1.column)})
     }
 }

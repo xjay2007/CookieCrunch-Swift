@@ -1,12 +1,12 @@
 //
-//  Set.swift
+//  XJSet.swift
 //  XJCookieCrunch
 //
 //  Created by JunXie on 14-6-30.
 //  Copyright (c) 2014 xiejun. All rights reserved.
 //
 
-class Set<T: Hashable> {
+class XJSet<T: Hashable> {
     var dictionary = Dictionary<T, Bool>() // private
     
     func addElement(newElement: T) {
@@ -21,7 +21,7 @@ class Set<T: Hashable> {
         return dictionary[element] != nil
     }
     
-    func allElements() -> T[] {
+    func allElements() -> [T] {
         return Array(dictionary.keys)
     }
     
@@ -29,14 +29,14 @@ class Set<T: Hashable> {
     return dictionary.count
     }
     
-    func unionSet(otherSet: Set<T>) -> Set<T> {
-        var combined = Set<T>()
+    func unionSet(otherXJSet: XJSet<T>) -> XJSet<T> {
+        let combined = XJSet<T>()
         
         for obj in dictionary.keys {
             combined.dictionary[obj] = true
         }
         
-        for obj in otherSet.dictionary.keys {
+        for obj in otherXJSet.dictionary.keys {
             combined.dictionary[obj] = true
         }
         
@@ -45,14 +45,14 @@ class Set<T: Hashable> {
     
 }
 
-extension Set: Sequence {
+extension XJSet: SequenceType {
     // Sequence
     func generate() -> IndexingGenerator<Array<T>> {
         return allElements().generate()
     }
 }
 
-extension Set: Printable {
+extension XJSet: CustomStringConvertible {
     var description: String {
     return dictionary.description
     }

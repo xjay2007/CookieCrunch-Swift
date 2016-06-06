@@ -33,7 +33,7 @@ class GameScene: SKScene {
     let fallingCookieSound = SKAction.playSoundFileNamed("Scrape.wav", waitForCompletion: false)
     let addCookieSound = SKAction.playSoundFileNamed("Drip.wav", waitForCompletion: false)
     
-    init(size: CGSize) {
+    override init(size: CGSize) {
         super.init(size: size)
         
         self.anchorPoint = CGPointMake(0.5, 0.5)
@@ -61,10 +61,15 @@ class GameScene: SKScene {
         self.swipeFromRow = nil
         
         // load font
-        SKLabelNode(fontNamed: SCORE_FONT_NAME)
+        let label = SKLabelNode(fontNamed: SCORE_FONT_NAME)
+        NSLog("%@", label)
+    }
+
+    required init?(coder aDecoder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
     }
     
-    func addSpritesForCookies(cookies: Set<Cookie>) {
+    func addSpritesForCookies(cookies: XJSet<Cookie>) {
         for cookie in cookies {
             let sprite = SKSpriteNode(imageNamed: cookie.cookieType.spriteName)
             
@@ -90,10 +95,10 @@ class GameScene: SKScene {
     }
     
     func addTiles() {
-        for row in 0..NumRows {
-            for column in 0..NumColumns {
+        for row in 0..<NumRows {
+            for column in 0..<NumColumns {
                 // masks
-                if let tile = level.tileAtColumn(column, row: row) {
+                if level.tileAtColumn(column, row: row) != nil {
                     let tileNode = SKSpriteNode(imageNamed: "MaskTile")
                     tileNode.position = pointForColumn(column, row: row)
                     maskLayer.addChild(tileNode)
@@ -103,10 +108,10 @@ class GameScene: SKScene {
         for row in 0...NumRows {
             for column in 0...NumColumns {
                 // tiles
-                let topLeft = (column > 0) && (row < NumRows) && level.tileAtColumn(column - 1, row: row)
-                let bottomLeft = (column > 0) && (row > 0) && level.tileAtColumn(column - 1, row: row - 1)
-                let topRight = (column < NumColumns) && (row < NumRows) && level.tileAtColumn(column, row: row)
-                let bottomRight = (column < NumColumns) && (row > 0) && level.tileAtColumn(column, row: row - 1)
+                let topLeft = ((column > 0) && (row < NumRows) && level.tileAtColumn(column - 1, row: row) != nil)
+                let bottomLeft = ((column > 0) && (row > 0) && level.tileAtColumn(column - 1, row: row - 1) != nil)
+                let topRight = ((column < NumColumns) && (row < NumRows) && level.tileAtColumn(column, row: row) != nil)
+                let bottomRight = ((column < NumColumns) && (row > 0) && level.tileAtColumn(column, row: row - 1) != nil)
                 
                 // The tiles are named from 0 to 15, according to the bitmask that is
                 // made by comining these four values.
@@ -213,7 +218,7 @@ class GameScene: SKScene {
         runAction(self.invalidSwapSound)
     }
     
-    func animateMathesCookies(chains: Set<Chain>, completion: () -> ()) {
+    func animateMathesCookies(chains: XJSet<Chain>, completion: () -> ()) {
         for chain in chains {
             animateScoreForChain(chain)
             
@@ -236,7 +241,7 @@ class GameScene: SKScene {
         // 1
         var longestDuration: NSTimeInterval = 0
         for array in columns {
-            for (idx, cookie) in enumerate(array) {
+            for (idx, cookie) in array.enumerate() {
                 let newPosition = pointForColumn(cookie.column, row: cookie.row)
                 // 2
                 let delay = 0.05 + 0.15 * NSTimeInterval(idx)
@@ -263,7 +268,7 @@ class GameScene: SKScene {
             // 2
             let startRow = array[0].row + 1
             
-            for (idx, cookie) in enumerate(array) {
+            for (idx, cookie) in array.enumerate() {
                 // 3
                 let sprite = SKSpriteNode(imageNamed: cookie.cookieType.spriteName)
                 sprite.position = pointForColumn(cookie.column, row: startRow)
@@ -295,7 +300,7 @@ class GameScene: SKScene {
         // Add a label for the score than slowly floats up.
         let scoreLabel = SKLabelNode(fontNamed: SCORE_FONT_NAME)
         scoreLabel.fontSize = 16
-        scoreLabel.text = NSString(format: "%ld", chain.score)
+        scoreLabel.text = NSString(format: "%ld", chain.score) as String
         scoreLabel.position = centerPosition
         scoreLabel.zPosition = 300
         cookiesLayer.addChild(scoreLabel)
@@ -306,14 +311,16 @@ class GameScene: SKScene {
     }
     ///
     func showSelectionIndicatorForCookie(cookie: Cookie) {
-        if selectionSprite != nil {
-            selectionSprite.removeFromParent()
-        }
+        selectionSprite.removeFromParent()
         
         if let sprite = cookie.sprite {
             let texture = SKTexture(imageNamed: cookie.cookieType.highlightedSpriteName)
             selectionSprite.size = texture.size()
-            selectionSprite.runAction(SKAction.setTexture(texture))
+            if #available(iOS 7.1, *) {
+                selectionSprite.runAction(SKAction.setTexture(texture))
+            } else {
+                // Fallback on earlier versions
+            }
             
             sprite.addChild(selectionSprite)
             selectionSprite.alpha = 1.0
@@ -327,66 +334,70 @@ class GameScene: SKScene {
             ]))
     }
     
-    override func touchesBegan(touches: NSSet!, withEvent event: UIEvent!) {
-        // 1 
-        let touch = touches.anyObject() as UITouch
-        let location = touch.locationInNode(cookiesLayer)
-        // 2
-        let (success, column, row) = convertPoint(location)
-        if success {
-            // 3
-            if let cookie = level.cookieAtColumn(column, row: row) {
-                // 4
-                swipeFromColumn = cookie.column
-                swipeFromRow = cookie.row
-                
-                showSelectionIndicatorForCookie(cookie)
+    override func touchesBegan(touches: Set<UITouch>, withEvent event: UIEvent?) {
+        // 1
+        if  let touch = touches.first {
+            let location = touch.locationInNode(cookiesLayer)
+            // 2
+            let (success, column, row) = convertPoint(location)
+            if success {
+                // 3
+                if let cookie = level.cookieAtColumn(column, row: row) {
+                    // 4
+                    swipeFromColumn = cookie.column
+                    swipeFromRow = cookie.row
+                    
+                    showSelectionIndicatorForCookie(cookie)
+                }
             }
         }
     }
-    override func touchesMoved(touches: NSSet!, withEvent event: UIEvent!) {
+    override func touchesMoved(touches: Set<UITouch>, withEvent event: UIEvent?) {
         // 1
         if swipeFromColumn == nil {
             return
         }
         
         // 2 
-        let touch = touches.anyObject() as UITouch
-        let location = touch.locationInNode(cookiesLayer)
-        
-        let (success, column, row) = convertPoint(location)
-        if success {
+        if let touch = touches.first {
+            let location = touch.locationInNode(cookiesLayer)
             
-            // 3
-            var horzDelta = 0, vertDelta = 0
-            if column < swipeFromColumn! { // left
-                horzDelta = -1
-            } else if column > swipeFromColumn! { // right
-                horzDelta = 1
-            } else if row < swipeFromRow! { // down
-                vertDelta = -1
-            } else if row > swipeFromRow! { // up
-                vertDelta = 1
-            }
-            
-            // 4
-            if horzDelta != 0 || vertDelta != 0 {
-                trySwapHorizontal(horzDelta, vertical: vertDelta)
+            let (success, column, row) = convertPoint(location)
+            if success {
                 
-                hideSelectionIndicator()
+                // 3
+                var horzDelta = 0, vertDelta = 0
+                if column < swipeFromColumn! { // left
+                    horzDelta = -1
+                } else if column > swipeFromColumn! { // right
+                    horzDelta = 1
+                } else if row < swipeFromRow! { // down
+                    vertDelta = -1
+                } else if row > swipeFromRow! { // up
+                    vertDelta = 1
+                }
                 
-                swipeFromColumn = nil
+                // 4
+                if horzDelta != 0 || vertDelta != 0 {
+                    trySwapHorizontal(horzDelta, vertical: vertDelta)
+                    
+                    hideSelectionIndicator()
+                    
+                    swipeFromColumn = nil
+                }
             }
         }
     }
-    override func touchesEnded(touches: NSSet!, withEvent event: UIEvent!) {
+    override func touchesEnded(touches: Set<UITouch>, withEvent event: UIEvent?) {
         if selectionSprite.parent != nil && swipeFromColumn != nil {
             hideSelectionIndicator()
         }
         swipeFromColumn = nil
         swipeFromRow = nil
     }
-    override func touchesCancelled(touches: NSSet!, withEvent event: UIEvent!) {
-        touchesEnded(touches, withEvent: event)
+    override func touchesCancelled(touches: Set<UITouch>?, withEvent event: UIEvent?) {
+        if let ts = touches {
+            touchesEnded(ts, withEvent: event)
+        }
     }
 }
